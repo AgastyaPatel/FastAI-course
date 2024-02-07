@@ -1,0 +1,310 @@
+WHY A TEXT FILE?
+Practicing in text file did not only gave me the learning experience but also forced me to predict the outputs before copying from the book or executing them. :)
+
+im3_t = tensor(im3)
+df = df.DataFrame(im3_t[4:15, 4:15])
+df.style.set_properties(**{'font-size':'6pt'}).background_gradient('Greys')
+
+seven_tensor = [tensor(Image.open(O) for o in sevens]
+three_tensor = [tensor(Image.open(O) for o in threes]
+
+show_image(three_tensor[1])
+[IMAGE]
+
+stacked_sevens = torch.stack(seven_tensors).float()/255
+staceked_threes = torch.stack(three_tensors).float()/255
+stacked_sevens.shape
+[6131, 28, 28]
+
+# Picking random image as sample
+a_3 = stacked_threes[1]
+a_7 = stacked_sevens[1]
+
+
+dist_3_abs = (a_3 - mean3).abs().mean()
+dist_3_sqr = ((a_3 - mean3)**2).mean.sqrt()
+
+dist_7_abs = (a_3 - mean7).abs().mean()
+dist_7_sqr = ((a_3 - mean7)**2).mean().sqrt()
+
+# Using PyTorch torch.nn.functional as F
+F.l1_loss(a_3.float(), mean7), F.mse_loss(a_3, mean7).sqrt()
+
+valid_3_tens = torch.stack([tensor(Image.open(o) for o in (path/'valid'/'3').ls())])
+valid_7_tens = torch.stack([tensor(Image.open(o) for o in (path/'valid'/'7').ls())])
+valid_3_tens = valid_3_tens.float()/255
+valid_7_tens = valid_7_tens.float()/255
+valid_3_tens [1010, 28,28] valid_8_tens[1028,28,28]
+
+def mnist_distance(a,b): return (a-b).abs().mean((-1, -2))
+mnist_distance(a_3, mean_3)		// tensor(0.014)
+
+valid_3_dist = mnist_distance(valid_3__tens, mean_3)
+valid_3_dist, valid_3_dist.shape
+(tensor([0.1050, 0.1526, 0.1186,  ..., 0.1122, 0.1170, 0.1086]),
+ torch.Size([1010]))
+
+accuracy_3 = is_3(valid_3_tens).float().mean()
+accuracy_7 = 1 - is_3(valid_7_tens).float().mean()
+
+
+\\Derivatives
+xt = tensor(3.).reequires_grad_()
+yt = f(xt)
+yt      // result tensor(9., grad_fn= <PowBackward>)
+
+yt.backward()
+---------------
+---------------
+GENERAL SGD Mechanism
+def f(t, params):
+	a,b,c = params
+	return a*t**2 + b*6 + c
+
+def mse(preds, targets): return ((preds - targets)**2).mean()
+
+
+----------
+Initialize the params
+params = torch.randn(3).requires_grad_()
+orig_params = params.clone()
+
+Prediction or predicted function
+preds = f(time, params)
+
+Loss
+loss = mse(preds, speed)
+
+Caclulate gradients/Backward proporgation
+loss.backward()
+params.grad
+
+Stepping
+lr = 1e-5
+params -= grad * lr
+params.grad = None
+
+Iterate
+preds = f(time, params)
+loss = mse(preds, speed)
+loss
+
+loss.backward()
+params.grad
+
+CREATING LOOP
+def apply_step(params, prn = True):
+	preds = f(time, params)
+	loss = mse(preds, speed)
+	loss.backward()
+	params.data -= lr * params.grad
+	params.grad = None
+	if prn: print(loss.item())
+	return preds
+
+for i in range(10): apply_step(params)
+
+------
+------
+MNIST LOSS Function
+
+// Data Handling
+train_x = torch.cat([stacked_threes, stacked_sevens]).view(-1, 28*28)
+train_y = torch.cat([1]*len(threes) + [0]*len(sevens)).unsqueeze(1)
+train_x.shape,train_y.shape			// (torch.Size([12396, 784]), torch.Size([12396, 1]))
+
+dset = list(zip(train_x, train_y)
+x,y = dset[0]
+x.shape,y					// (torch.Size([784]), tensor([1]))
+
+valid_x = torch.cat([valid_3_tens, valid_7_tens]).view(-1, 28*28)
+valid_y = tensor([1]*len(valid_3_tens) + [0]*len(valid_7_tens)).unsqueeze(1)
+valid_dset = list(zip(valid_x,valid_y))
+
+
+// Intialization step
+def init_params(size, std=1.0): return(torch.randn(size)*std).requires_grad_()
+
+weights = init_params((28*28, 1))
+bias = init_params(1)
+
+y=wx+b
+(train_x[0]*weights.T).sum() + bias
+
+// Matrix Multiplication
+def linear1(xb): return xb@weights + biaas
+preds = linear1(train_x)
+// Here the prediction is done with broadcasting hence the same set of weights are applied to all images
+preds 		// tensor([ 7.5145, 12.6291,  8.7788,  ..., -9.0516,  1.0111, -5.5140], grad_fn=<AddBackward0>)
+
+
+corrects = (preds > 0.0).float() == train_y
+corrects	// BoolTensor ([True, True, False, ...])
+corrects.float().mean().item()			// Accuracy 0.5041003823280334
+
+////MANUAL Modification of weights
+Here only the first weight is being modfied
+with torch.no_grad(): weights[0] * = 1.001
+preds = linear1(train_x)
+((preds>0).float() == Train_y).float().mean().item()		// 0.5041003823280334
+
+################# PROBLEM OF CALCULATING LOSS WHEN THERE IS NO UPDATE IN ACCURACY After small change in parmaeter
+
+Better Loss Demo or Example
+trgts = tensor([1,0,1])
+preds = tensor([0.9, 0.4, 0.2])
+
+def mnist_loss(predictions, targets):
+	 return torch.where(targets==1, 1-predictions, predictions).mean()
+
+mnist_loss(prds,trgts)				// 0.433
+mnist_loss(tensor([0.9, 0.4, 0.8], trgts)	// 0.233
+
+MNIST_LOSS assumes the predictions are always in the range 0 to 1
+## Sigmoid is used to squish and smooshes the values between 0 and 1
+def sigmoid(x): return 1/(1+torch.exp(-x))
+
+def mnist_loss(predictions, targets):
+	predictions = predictions.sigmoid()
+	return torch.where(targets==1, 1-predictions, predictions).mean()
+------------------
+------------------
+PUTTING ALL CONCEPTS TOGETHER
+weights = init_params((28*28, 1))
+bias = init_params(1)
+
+dset = list(zip(train_x, train_y)
+dl = DataLoader(dset, batch_size=256)
+
+xb, yb = first(dl)
+xb.shape, yb.shape 				// (256, 784), (256, 1)
+
+valid_dl = DataLoader(valid_dset, batch_size=256)
+
+--------
+Trying for first 4 batches
+batchOf4 = train_x[:4]
+batch.shape					// (4, 784)
+
+preds = linear1(batchOf4)				
+preds 				// tensor([[-11.1002], [  5.9263], [  9.9627], [ -8.1484]], grad_fn=<AddBackward0>)
+
+loss = mnist_loss(preds, train_y[:y])		// tensor(0.5006, grad_fn=<MeanBackward0>)
+loss.backward()
+weights.grad.shape, weights.grad.mean(), bias.grad   //(torch.Size([784, 1]), tensor(-0.0001), tensor([-0.0008]))
+
+# CALCULATE GRADIENT
+def calc_grad(xb, yb, model):
+	preds = model(xb)
+	loss = mnist_loss(preds, yb)
+	loss.backward()
+
+# Calling for first time
+calc_grad(batchOf4, train_y[:4], linear1)
+weights.grad.mean(), bias.grad			// (tensor(-0.0002), tensor([-0.0015]))
+
+# Calling for second tine
+calc_grad(batchOf4, train_y[:4], linear1)
+weights.grad.mean(), bias.grad			// (tensor(-0.0003), tensor([-0.0023]))
+
+Gradients have changed because loss.backward adds gradient
+weights.grad.zero_()
+bias.grad.zero_()
+
+def train_epoch(model, lr, params):		// params = (weights, bias)
+	for xb, yb in dl:	## Loop over batches
+		calc_grad(xb, yb, model)
+		for p in params:
+			p.data -= p.grad *lr
+			p.grad_zero_()
+
+Calculating accuracy 
+(preds>0.0).float() == train_y[:4]
+
+
+CALCULATING BATCH ACCURACY 
+def batch_accuracy(predOfxb, yb):
+	preds = predOfxb.sigmoid()
+	correct = (preds>0.5)==yb
+	return correctt.float().mean()
+		
+batch_accuracy(linear1(batch), train_y[:4])		// batchOf4 tensor(0.5000)
+
+CALCULATING ACCURACY FOR VALIDAION DL
+def validate_epoch(model):
+	accs = [batch_accuracy(model(xb), yb) for xb, yb in valid_dl]
+	return round(torch.stack(accs).mean().item(), 4)
+
+validate_epoch(linear1)					// 0.5219
+
+TRAINING FOR ONE EPOCH
+lr = 1
+params = weights, bias
+train_epoch(linear1, lr, params)
+validate_epoch()					// 0.6833
+
+TRAINING FOR MULTIPLE EPOCHS
+for i in range(20):
+	train_epoch(linear1, lr, params)		// Training epoch
+	print(validate_epoch(linear1), end=' ')		// Validation Epoch to calc accuracy
+// 0.8314 0.9017 0.9227 0.9349 0.9438 0.9501 0.9535 0.9564 0.9594 0.9618 0.9613 0.9638 0.9643 0.9652 0.9662 0.9677 0.9687 0.9691 0.9691 0.9696 
+
+
+===============
+==============
+Creating an optimizer
+
+# Initializing weights and linear1
+linear_model = nn.Linear(28*28, 1)
+w,b = linear_model.parameters()
+w.shape, b.shape					// (torch.Size([1, 784]), torch.Size([1]))
+
+
+## Creating Optimizer
+class BasicOptim:
+	def __init__(self, params, lr): 
+		self.params, self.lr = list(params), lr
+	
+	def step(self, *args, *kwargs):
+		for p in self.params:
+			p.data -= p.grad.data * self.lr
+	
+	def zero_grad(self, *args, *kwargs):
+		for p in self.params: p.grad = None
+
+opt = BasicOptim(linear_model.parameters(), lr)
+
+# Creating training loop
+def train_epoch(model):
+	for xb, yb in dl:
+		calc_grad(xb, yb, model)		// pred + loss + backward
+		opt.step()
+		opt.zero_grad()
+
+# No change in validation function
+validate_epoch(linear_model)
+
+def train_model(model, epoch):
+	for i in range(epoch):
+		train_epoch(model)			// Training EPOCH
+		print(validate_epoch(model), end=' ')	// Validation EPOCH to calculate accuracy
+
+train_model(linear_model, 20)
+// 0.4932 0.852 0.8335 0.9116 0.9326 0.9473 0.9555 0.9624 0.9648 0.9668 0.9692 0.9712 0.9731 0.9746 0.9761 0.9765 0.9775 0.978 0.9785 0.9785 
+
+
+DSET vs DataLoader vs DataLoaders
+
+## Doing above Using FastAI api
+dls = DataLoaders(dl, valid_dl)
+learn = Learner(dls, nn.Linear(28*28,1), opt_func=SGD, loss_func=mnist_loss, metrics=batch_accuracy)
+lean.fit(10, lr=lr)
+
+
+
+
+
+
+
+		
+
